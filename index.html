@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+</head>
+<body bgcolor="#EEEEEE">
+	<script>
+	 var canvasWidth = 900, canvasHeight = 600;
+	 var data = [];
+		// import the data file
+	d3.csv("https://www.gully.org/uxb/lines/railHistory.csv",function(csv) {
+			data = csv;
+			render();
+	});
+
+	var svg = d3.select("body").append("svg")
+							.attr("width", canvasWidth)
+							.attr("height",canvasHeight);
+
+	var scaleX = d3.scale.linear()
+	        .domain([1830, 2025])   // Data space
+	        .rangeRound([0, canvasWidth]); // Pixel space
+  var scaleY = d3.scale.linear()
+				.domain([1,30])
+				.rangeRound([0,canvasHeight]);
+
+	function render()
+	{
+		svg.append("rect")
+    .attr("width", "100%")
+    .attr("height", "100%")
+    .attr("fill", "white");
+
+		var canvas = d3.select("svg");
+		var rects = canvas.selectAll("g").data(data).enter().append("g")
+		.attr("transform", function(d, i) { return "translate(0,20)"; });
+
+		rects.append("rect")
+		.attr("x",function(d) {
+			return scaleX(parseInt(d.date_start));})
+		.attr("y",function(d){ return scaleY(d.item);})
+		.attr("width",function(d){
+			var amt = scaleX(parseInt(d.date_end)) - scaleX(parseInt(d.date_start));
+			console.log("width for " + d.railroadName + " is: " + amt + " of end" + scaleX(parseInt(d.date_end)) + " start:" + scaleX(parseInt(d.date_start)));
+			return amt;})
+		.attr("height",5)
+		.attr("fill","black");
+
+		rects.append("text")
+		.style("font-size", "12")
+		.attr("dy", function(d) {
+			return scaleY(d.item - 0.3);
+		})
+		.attr("dx",function(d) {
+			return scaleX(d.date_start);})
+			.attr("opacity", "1")
+    .text(function(d) { return d.railroadName; });
+
+
+	}
+
+	</script>
+</body>
+</html>
